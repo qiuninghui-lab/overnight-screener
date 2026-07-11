@@ -1,0 +1,32 @@
+# 一夜持股法 - GitHub Actions 云端定时执行
+name: Overnight Stock Screener
+
+on:
+  schedule:
+    # UTC 06:30 = 北京时间 14:30，周一至周五
+    - cron: "30 6 * * 1-5"
+  workflow_dispatch:  # 允许手动触发测试
+
+jobs:
+  screener:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Dependencies
+        run: pip install akshare
+
+      - name: Run Screener
+        env:
+          QQ_SMTP_PASS: ${{ secrets.QQ_SMTP_PASS }}
+          QQ_SMTP_USER: "qiuninghui@qq.com"
+          TO_EMAIL: "1204529407@qq.com"
+        run: python overnight_screener.py
